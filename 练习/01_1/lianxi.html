@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang='en'>
+
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Document</title>
+</head>
+<style>
+    .carts{
+        display: flex;
+    }
+    .item{
+        border: 1px solid red;
+        background-color: #ccc;
+        padding-top: 5px;
+        padding-left: 15px;
+        padding-right: 15px;
+        padding-bottom: 10px;
+    }
+    .item>button{
+        float: right;
+    }
+    .item>div{
+        float: left;
+    }
+    td{
+        text-align: center;
+    }
+</style>
+<body>
+    <div id='app'>
+        <cart :carts=products></cart>
+    </div>
+
+    <script src='../../vue.js'></script>
+    <script>
+        Vue.component('cart',{
+            data() {
+                return {
+                    tempCart:[]
+                }
+            },
+            props:{
+                carts:{
+                    type:Array,
+                    default(){return []}
+                }
+            },
+            components:{
+                "cart-list":{
+                    props:{
+                        list:Array
+                    },
+                    computed: {
+                        
+                    },
+                    methods: {
+                        
+                    },
+                    created() {
+                        // 组件创建成功后执行的回调
+                        let pros = localStorage.getItem('carts');
+                    },
+                    template:`
+                        <div>
+                            <table width=75% border="1" cellspacing=0>
+                                <tr>
+                                    <td>名称</td>
+                                    <td>单价</td>
+                                    <td>数量</td>
+                                    <td>小计</td>
+                                </tr>
+                                <tr v-for="item in list">
+                                    <td>{{item.name}}</td>
+                                    <td>{{item.price}}</td>
+                                    <td>
+                                        <button>-</button>
+                                        {{item.count}}
+                                        <button>+</button>
+                                    </td>
+                                    <td>{{item.count*item.price}}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3">总计</td>
+                                    <td></td>
+                                </tr>
+                            </table>
+                        </div>
+                    `,
+                }
+            },
+            methods:{
+                add(idx){
+                    // 给源数据添加一个count属性
+                    let obj = {
+                        ...this.carts[idx],
+                        count:1
+                    }
+                    // 查找tempCart中有没有当前添加的数据
+                    let i = this.tempCart.findIndex(val=>{
+                        return val.name==obj.name
+                    })
+                    if(i==-1){//新增数据
+                        this.tempCart.push(obj)
+                    }else{//已经存在，count增1
+                        // 取出添加数据对象
+                        let o = {
+                            ...this.tempCart[i]
+                        }
+                        // 数量+1
+                        o.count = o.count+1
+                        // 修改数据
+                        Vue.set(this.tempCart,i,o)
+                    }
+                    
+                }
+            },
+            template:`
+                <div>
+                    <div class=carts>
+                        <div v-for="(p,i) in carts" class=item>
+                            <img :src="p.img">
+                            <h4>{{p.name}}</h4>
+                            <div>{{p.price}}</div>
+                            <button @click=add(i)>添加购物车</button>
+                        </div>
+                    </div>
+                    <cart-list :list=tempCart />
+                </div>
+            `,
+        })
+        new Vue({
+            el: '#app',
+            data: {
+                products:[
+                    {img:"1.png",name:"小米",price:2000},
+                    {img:"2.png",name:"华为",price:4500},
+                    {img:"3.png",name:"苹果",price:6000},
+                    {img:"4.png",name:"三星",price:5000},
+                    {img:"5.png",name:"锤子",price:3000},
+                    {img:"6.png",name:"魅族",price:1200}
+                ]
+            },
+            methods: {}
+        })
+    </script>
+</body>
+
+</html>

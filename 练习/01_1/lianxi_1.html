@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang='en'>
+
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Document</title>
+</head>
+
+<body>
+    <div id='app'></div>
+    
+    <script src='../vue.js'></script>
+    <script>
+        Vue.component('shopping-cart',{
+            data(){
+                return {
+                    pros:[
+                        {pid:1,pname:'华为',price:3000,count:1},
+                        {pid:2,pname:'小米',price:2000,count:1},
+                        {pid:3,pname:'黑鲨',price:1500,count:1}
+                    ],
+                    selected:''
+                }
+            },
+            methods: {
+                select(idx){
+                    this.selected = idx
+                }
+            },
+            template:`
+                <div>
+                    <table border="1" bordercolor="grey" cellspacing="0" cellpadding="10">
+                        <tr>
+                            <td>编号</td>
+                            <td>名称</td>
+                            <td>单价</td>
+                            <td>库存</td>
+                        </tr>
+                        <tr v-for="(pro,index) in pros" @click=select(index)>
+                            <td>{{pro.pid}}</td>
+                            <td>{{pro.pname}}</td>
+                            <td>{{pro.price}}</td>
+                            <td>{{pro.count}}</td>
+                        </tr>
+                    </table>
+                    <shop :selectPro=selected />
+                </div>
+            `,
+            components:{
+                "shop":{
+                    props:{
+                        name:{
+                            type:String,
+                            default(){
+                                return ''
+                            }
+                        },
+                        count:{
+                            type:Number,
+                            default(){
+                                return 0
+                            }
+                        }
+                    },
+                    methods: {
+                        add(){
+
+                        }
+                    },
+                    template:`
+                        <div>
+                            <input type=text v-model=name><br>
+                            <input type=number v-model=count><br>
+                            <button @click=add>增加</button>
+                        </div>
+                    `
+                }
+            }
+        })
+        new Vue({
+            el: '#app',
+            data: {},
+            template:`
+                <div>
+                    <shopping-cart />
+                </div>
+            `
+        })
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang='en'>
+
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Document</title>
+</head>
+<style>
+    .red{color: red;}
+</style>
+<body>
+    <div id='app'>
+        <!-- <my-com></my-com> -->
+    </div>
+    <script src='../vue.js'></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data: {},
+            methods: {},
+            template:`
+            <div><my-com /></div>
+            `,
+            components:{
+                "my-com":{
+                    data(){
+                        return {num:1,msg:'',classA:'red'}
+                    },
+                    methods: {
+                        add(){
+                            console.log(this);
+                            this.num++
+                        }
+                    },
+                    template:`
+                    <div>
+                        <button @click="add">增加</button>
+                        <h1>{{num}}</h1>
+                        <input type=text v-model=msg />
+                        <h1 :class=classA v-html=msg></h1>
+                    </div>
+                    `,
+                    created() {
+                        console.log('组件创建了');
+                    },
+                    updated() {
+                        console.log('数据更新了');
+                    },
+                }
+                
+            }
+        })
+    </script>
+</body>
+
+</html>

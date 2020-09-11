@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+        <div v-text="msg"></div>
+        <div v-html="msg"></div>
+        <ul>
+            <li>v-if / v-show</li>
+            <li>
+                <button @click='toggle'>toggle</button>
+            </li>
+            <li v-if="show">这是v-if</li>
+            <li v-show="show">这是v-show</li>
+
+            <li v-if="show">v-if</li>
+            <li v-else>v-else</li>
+
+            <li><h1>v-for遍历</h1></li>
+            <li v-for="(item,index) in fruits">
+                {{`${index}---${item}`}}
+            </li>
+            <li>
+                <h4>{{num}}</h4>
+                <button v-on:click="add">+</button>
+                <button @click="reduce">-</button>
+            </li>
+        </ul>
+    </div>
+
+    <script src="../vue.js"></script>
+    <script>
+        new Vue({
+            el:'#app',
+            data:{
+                msg:'<h1>This is data 的 msg</h1>',
+                show:false,
+                num:0,
+                fruits:[
+                    'apple','pear','banana','pineapple','orange','strawberry'
+                ]
+            },
+            methods: {
+                add(){
+                    this.num++
+                },
+                reduce(){
+                    this.num--
+                },
+                toggle(){
+                    this.show = !this.show;
+                }
+            },
+        })
+    </script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    .out{
+        width: 400px;height: 400px;
+        background-color: #ccc;
+    }
+    .inner{
+        width: 200px;height: 200px;
+        background-color: #c0c;
+    }
+    .style_red{
+        height: 50px;
+        border: 1px solid red;
+    }
+</style>
+<body>
+    <div id="app">
+        <div class="out" @click.self="c1">
+            <div class="inner" @click="c2"></div>
+        </div>
+        <a href="http://www.baidu.com" @click.prevent="c1">XXX</a>
+        <input type="text" @blur="show">
+        <div>
+            <h3>v-bind</h3>
+            <img v-bind:src="path" width="100" @click="change">
+            <div :class="red"></div>
+            <a :href="baidu">XXX</a>
+        </div>
+    </div>
+
+    <script src="../vue.js"></script>
+    <script>
+        new Vue({
+            el:'#app',
+            data:{
+                path:'404.jpg',
+                red:'style_red',
+                baidu:'http://www.baidu.com'
+            },            
+            methods: {
+                change(){
+                    this.path = this.path=='404.jpg'?'dir.jpg':'404.jpg'
+                },
+                c1(){
+                    alert('这是c1')
+                },
+                c2(){
+                    alert('This is c2')
+                },
+                show(){
+                    alert('触发了onblur')
+                }
+            },
+        })
+    </script>
+</body>
+</html>

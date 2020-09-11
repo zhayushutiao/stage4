@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+        省份：
+        <select v-model="pro">
+            <option v-for="(p,i) in pros" :value="i">{{p}}</option>
+        </select>
+        城市：
+        <select v-model="city">
+            <option v-for="(c,i) in cities[pro]" :value="i">{{c}}</option>
+        </select>
+        <h3>
+            你选择的是：{{`${pros[pro]}省${cities[pro][city]}市`}}
+        </h3>
+    </div>
+
+    <script src="../../vue.js"></script>
+    <script>
+        new Vue({
+            el:'#app',            
+            data:{
+                pro:0,
+                city:0,
+                pros:['江苏','山东','安徽','浙江','湖北'],
+                cities:[
+                    ["南京","苏州","扬州","泰州","徐州"],
+                    ["济南","日照","青岛","潍坊","莱芜"],
+                    ["合肥","六安","滁州","黄山","蚌埠"],
+                    ["宁波","杭州","温州","金华","义乌"],
+                    ["武汉","黄冈","荆门","宜昌","十堰"]
+                ]
+            }
+        })
+    </script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang='en'>
+
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Document</title>
+</head>
+
+<body>
+    <div id='app'>
+        {{obj}}
+        <button @click="add">XXX</button>
+
+        <div ref="dd">
+            <h1>{{msg1}}</h1>
+        </div>
+    </div>
+    <script src='../vue.js'></script>
+    <script>
+        let vm = new Vue({
+            el: '#app',
+            data: {
+                msg1:1,
+                msg2:2,
+                msg3:3,
+                obj:{b:10}
+            },
+            methods: {
+                add(){
+                    // this.obj.a = 1
+                    // Vue.set(this.obj,'a',1)
+                    // 当数据发生变化时，不会立即去更新视图
+                    this.msg1++
+                    // 所以拿到的内容还是数据变化之前的内容
+                    console.log(this.$refs.dd.innerHTML);
+                    // $nextTick将回调延迟到DOM更新之后再执行
+                    this.$nextTick(()=>{
+                        console.log(this.$refs.dd.innerHTML);
+                    })
+                }
+            },
+            watch: {
+                msg1(){console.log(1);},
+                msg2(){console.log(2);}
+            },
+        })
+        vm.$watch('msg3.msg2.msg1',function(){
+            console.log(3);
+        })
+        console.log(vm);
+    </script>
+</body>
+
+</html>

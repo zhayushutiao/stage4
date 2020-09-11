@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+        <textarea v-model="goods"></textarea>
+        <button @click="add">添加</button>
+        <table border="1" bordercolor="red" cellspacing="0" cellpadding="10">
+            <tr>
+                <td>编号</td>
+                <td>名称</td>
+                <td>单价</td>
+                <td>数量</td>
+                <td>操作</td>
+            </tr>
+            <tr v-for="(value,index) in datas">
+                <td>{{value[0]}}</td>
+                <td>{{value[1]}}</td>
+                <td>{{value[2]}}</td>
+                <td>{{value[3]}}</td>
+                <td><button @click='del(index)'>删除</button></td>
+            </tr>
+        </table>
+    </div>
+
+    <script src="../../vue.js"></script>
+    <script>
+        new Vue({
+            el:'#app',
+            data:{
+                goods:'',
+                datas:[]
+            },
+            methods: {
+                add(){
+                    let data = this.goods.split(' ');
+                    let f = false;//假设不同
+                    let k = -1;//假设有相同时的下标
+                    this.datas.forEach((val,i)=>{
+                        if(val[1]==data[1]){
+                            f = true;
+                            k = i;
+                            val[3] = (val[3] - 0) + (data[3] - 0);
+                        }
+                    })
+                    if(f){
+                        data = this.datas.splice(k,1)[0]
+                    }
+                    this.datas.unshift(data)
+                },
+                del(index){
+                    this.datas.splice(index,1);
+                }
+            },
+        })
+    </script>
+</body>
+</html>

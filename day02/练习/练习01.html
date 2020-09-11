@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang='en'>
+
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Document</title>
+</head>
+
+<body>
+    <div id='app'>
+        <button @click="add">点击</button>
+        点击了{{num}}次
+        <div>
+            当前时间：{{now}}
+        </div>
+        {{getTime}}
+        <div>
+            <button @click="rise">升温</button>
+            <button @click="fall">降温</button>
+            <h3>当前温度：{{temp}}</h3>
+            穿着建议：当前气温{{feel}}，建议穿{{clothes}}
+        </div>
+    </div>
+    <script src='../../vue.js'></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                num:0,
+                now:null,
+                temperature:20
+            },
+            methods: {
+                rise(){
+                    this.temperature++
+                },
+                fall(){
+                    this.temperature--
+                },
+                add(){
+                    this.now = new Date()
+                    this.num++
+                }
+            },
+            computed: {
+                clothes(){
+                    if(this.temperature>30){
+                        return '短袖';
+                    }
+                    if(this.temperature>10){
+                        return '春秋衫';
+                    }
+                    return '羊毛衫';
+                },
+                feel(){
+                    if(this.temperature>30){
+                        return '炎热';
+                    }
+                    if(this.temperature>10){
+                        return '适宜';
+                    }
+                    return '偏冷';
+                },
+                temp(){
+                    return this.temperature+'℃'
+                },
+                // computed的名称不能与data的属性名重复
+                getTime(){
+                    console.log(this.num);
+                    return new Date()
+                }
+            },
+        })
+    </script>
+</body>
+
+</html>

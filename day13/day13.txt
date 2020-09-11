@@ -1,0 +1,334 @@
+qq音乐
+1. 项目搭建
+  新建package.json，.babelrc，.gitignore以及webpack配置文件
+  修改其中部分内容
+  安装相关的依赖
+  在项目根目录下新建public和src文件夹
+  在src下新建
+    api/ 封装请求数据接口的代码
+    base/ 通用的基础组件
+    common/ 静态资源文件(已提供)
+    components/ 各种组件
+    router/ 路由
+    store/ 状态管理
+    App.vue
+    main.js
+
+2. 将common文件夹内容复制进去，同时在common中新建js文件夹
+
+3. 在main.js中引入各个模块并创建Vue实例对象
+  同时引入fastclick解决300ms延迟的问题
+  import fastclick from 'fastclick'
+  fastclick.attach(document.body)
+
+
+4. 引入全局样式
+  import './common/stylus/index.styl'
+
+5. App.vue
+  项目的根组件，其中包含3个部分：
+    header，tab，content
+  header对应m-header组件
+  tab对应tab组件，里面包含4个路由
+  第三部分为router-view，表示4个路由对应组件的渲染出口
+
+  在router.js中配置这4个路由
+
+6. 推荐页
+  1) 轮播图
+    使用vant组件库
+    安装依赖
+      npm i vant -S
+      npm i babel-plugin-import -D
+    将.babelrc文件修改为babelrc.config.js
+    同时修改其中的内容
+      "plugins": [
+        "@babel/plugin-transform-runtime",
+        ["import", {
+            "libraryName": "vant",
+            "libraryDirectory": "es",
+            "style": true
+        }]
+      ]
+    在main.js中引入轮播图模块
+      import {Swipe,SwipeItem} from 'vant'
+      Vue.use(Swipe)
+      Vue.use(SwipeItem)
+    在base文件夹中创建slider/slider.vue轮播图组件
+      将素菜中的slider代码复制进去
+      将class='slider-group'的div标签改为van-slider，同时修改其中的属性
+      将class='slider-item'的div标签改为van-slider-item
+    在script中定义props属性用于接收调用者传递过来的的数据pics，在van-slider-item中遍历pics
+    最后在recommend组件中引入slider组件并调用
+
+    获取数据
+      在recommend组件创建成功时，发送Ajax请求获取数据
+      created中调用methods定义的获取数据的方法
+      methods中定义获取数据的方法，调用api里封装的发送请求的方法
+      在api中新建recommend.js，用于发送推荐页数据的请求
+        getSlider方法获取轮播图
+        使用axios发送异步请求并返回promise对象
+        但是产生跨域问题(使用proxy代理)
+        在webpack配置文件中的devServer选项中设置proxy选项
+          [{
+            //请求代理
+            context: ["/musichall/fcgi-bin/fcg_yqqhomepagerecommend.fcg"],
+            target:'https://c.y.qq.com/',
+            changeOrigin:true
+          }]
+        修改后重启服务
+      解析数据返回轮播图数组，将其赋值给recommend.vue组件中的slider属性，再调用Slider.vue组件时将slider属性传递给轮播图组件
+      <Slider :pics="slider"></Slider>
+
+  2) 热门歌曲推荐
+    请求地址
+    https://c.y.qq.com/splcloud/fcgi-bin/fcg_get_diss_by_tag.fcg
+    请求参数
+    {
+      picmid: 1
+      rnd: Math.random()
+      g_tk_new_20200303: 5381
+      g_tk: 5381
+      loginUin: 0
+      hostUin: 0
+      format: 'json'
+      inCharset: 'utf8'
+      outCharset: 'utf-8'
+      notice: 0
+      platform: 'yqq.json'
+      needNewCode: 0
+      categoryId: 10000000
+      sortId: 5
+      sin: 0
+      ein: 19
+    }
+    跨域请求使用proxy代理的方式，
+      proxy:{
+        context:[url,url,url...],
+        changeOrigin:true,
+        headers:{
+          referer:'https://c.y.qq.com',
+          host:'c.y.qq.com'
+        }
+      }
+    在recommend.vue组件中调用recommend-list.vue组件
+    recommend-list组件创建成功后执行获取数据的方法，该方法在methods中定义，实际获取数据的请求由recommend.js发送
+    获取到数据后将数据解析并赋值给recommend-list组件中的数据
+
+  3) 滚动效果
+    vant组件库中的list组件
+    使用better-scroll(1.15.2版本)组件
+    因为滚动效果在其他地方也会多次使用，所以将滚动效果单独封装成一个独立的通用基础组件
+      在src下新建文件base/scroll/scroll.vue
+      模板中只有一个插槽
+      定义initScroll方法初始化scroll对象
+      然后在mounted中调用初始化方法
+      scroll对象必须在页面渲染成功后才可以创建，所以初始化方法需要写在this.$nextTick中以保证是在页面渲染结束后执行的
+
+7. 歌手页
+  歌手列表的数据
+    请求地址：/v8/fcg-bin/v8.fcg
+    请求参数：
+    {
+      g_tk:5381,
+      format:'json',
+      inCharset:'utf8',
+      outCharset:'utf-8',
+      notice:0,
+      hostUin:0,
+      needNewCode:0,
+      platform:'yqq.json',
+      page:'list',
+      channel:'singer',
+      key:'all_all_all',
+      pagesize:100,
+      pagenum:1
+    }
+  使用axios发送请求获取数据(配置dev.js)
+  解析数据
+    [
+      {
+        hot:{
+          title:'热门',
+          singers:[{},{},{}]
+        }
+      },
+      {
+        A:{
+          title:'A',
+          singers:[{},{},{}]
+        }
+      },
+      {
+        B:{
+          title:'B',
+          singers:[{},{},{}]
+        }
+      }
+    ]
+
+  将解析后的数据返回给singerView组件
+    在singerView组件中的methods方法里定义获取数据的方法，然后在created中调用
+    api中定义singer.js用于发送歌手页的相关请求，获取相关数据
+    最后将获取到的数据赋值给singerList属性，遍历渲染
+  字母导航部分：
+    使用computed过滤singerList数据，只返回singerList中的key(ABCD...)
+    解析遍历key
+    给每一个key添加一个单击事件，用于触发滚动到对应key的歌手位置
+      通过调用scroll组件实例中的scrollToElement方法实现
+      获取scroll实例：在scroll标签上添加ref属性
+
+8. 歌手详情页
+  点击某个歌手，页面显示对应歌手的详细信息(歌手图片，歌手的歌曲列表)
+  在components下创建singerDetail组件
+  在base下创建基础组件musicList.vue和songList.vue
+  配置/singer的子路由，对应就是singerDetail组件
+  点击singerView组价中的歌手名称派发一个select事件给父组件singer，singer组件执行派发的事件(路由跳转)
+  路由跳转到singerDetail组件中，在该组件里获取singer相关的数据(可以使用路由参数进行传递)
+  使用状态管理
+    在store.js中的state定义singerInfo属性，同时定义getters和mutations
+  点击singerView组件中某个歌手，组件派发事件给父组件(singer)，同时传递参数singer歌手信息(名字，头像，id)给singer组件
+  singer组件绑定派发的事件，在函数中将派发过来的数据singer通过mutation保存在状态管理中，然后使用编程式导航跳转路由
+  同时在singer里设置router-view
+  路由触发singerDetail组件，在该组件中，使用getters获取保存的数据singer，然后用singer中的fid发送请求获取歌手歌曲的数据
+  请求地址
+  /v8/fcg-bin/fcg_v8_singer_track_cp.fcg
+  请求参数
+  {
+    g_tk: 5381,
+    format: 'json',
+    inCharset: 'utf8',
+    outCharset: 'utf-8',
+    notice: 0,
+    hostUin: 0,
+    needNewCode: 0,
+    platform: 'yqq.json',
+    order: 'listen',
+    begin: 0,
+    num: 100,
+    songstatus: 1,
+    singermid: id
+  }
+  获取到数据后开始解析数据，取其中有用的属性，将这些属性封装成一个单独的类class Song
+  遍历数据通过new的方法创建若干个Song对象
+  最终将所有的歌曲信息songs绑定传递给musicList组件
+  在musicList中解析接收到的数据，遍历显示
+  并引入SongList来帮助解析遍历所有的歌曲信息
+  在songList中接收musicList绑定传递过来的数据songs
+
+9. 推荐页歌单的歌曲列表(歌单详情页)
+  点击推荐页的歌单，在详情页中显示该歌单中的歌曲列表
+  详情页依然使用musicList组件，所有只需要获取到对应的数据，然后在调用musicList组件时将数据传递给musicList组件
+  新建recomDetail.vue
+  配置相关路由
+  在recommend.vue中设置router-view
+  在recommend-list组件给每一个li添加单击事件，处理选择某个歌单的操作，派发自定义事件select给父组件
+  到recommend组件中调用recommendList组价的地方绑定自定义事件select
+  处理select事件：设置状态(将子组件传递的数据保存进singerInfo中)，路由跳转(跳转到recommendDetail组件中)
+  在recomDetail中定义获取数据的方法，调用API中的recommend.js发送异步请求获取歌单歌曲列表，将数据在调用musicList组件时传递过去(保证数据结构一致)
+
+10. 搜索页
+  新建api/search.js用于获取搜索页的数据
+  新建search/search.vue 搜索的根组件
+      search/search-box.vue 搜索框
+      search/suggest.vue 搜索结果
+  在search组件中引入search-box和suggest
+  热门搜索：
+    search中为输入关键字时，会显示一部分人的关键字
+    api中发送请求获取数据，取其中一部分数据返回给search解析，遍历显示
+  搜索框
+    给input添加v-model，在data中定义对应属性 query
+    监听query值的变化，实时向父组件派发事件queryChange，同时将数据传递给父组件
+    父组件接收数据并调用API1发送请求获取对应关键字搜索到的数据，解析数据，然后再将数据返回，绑定给suggest组件遍历
+
+
+11. 排行榜
+  rank.vue ，api/rank.js
+  rank组件创建时发送请求获取数据
+  rank.js使用axios发送请求(配置webpack.dev.js，域名与之前不一样，需要重新配置)
+  获取到数据后，先查看数据结构，然后解析数据，取需要的数据返回
+  rank.vue遍历数据(数据结构层次深，需要多次使用v-for)
+  最后引入Scroll，实现滚动
+
+  
+12. 播放功能
+  播放组件是一个公共组件，无论在哪个地方都可以播放，所以播放组件的状态必定是全局的
+  使用vuex来全局管理播放状态：
+  state中，定义状态
+    1. 播放/暂停 - playing: true/false
+    2. 播放列表 - playList: []
+    3. 当前播放索引 - currentIndex: -1
+    4. 播放模式 - playMode: 
+      顺序(ORDER - 1)
+      循环(LOOP - 2)
+      随机(RANDOM - 0)
+    5. 播放形式 - fullScreen: true/false
+    6. 播放顺序列表 - orderList: []
+  getters中，定义对应获取状态的方法
+    1. 获取播放状态 - getPlaying
+    2. 获取播放列表 - getPlayList
+    3. 获取当前播放索引 - getCurrentIndex
+    4. 获取播放模式 - getPlayMode
+    5. 获取播放形式 - getFullScreen
+    6. 获取播放顺序列表 - getOrderList
+    7. 获取当前播放歌曲 - getCurrentSong
+      return state.playList[state.currentIndex] || {}
+  mutations中，设置对应的方法
+    1. 设置播放状态 - setPlaying
+    2. 设置播放列表 - setPlayList
+    3. 设置当前播放索引 - setCurrentIndex
+    4. 设置播放模式 - setPlayMode
+    5. 设置播放形式 - setFullScreen
+    6. 设置播放列表 - setOrderList
+  actions中，设置播放
+    selectPlay
+    当点击某首歌曲时，即开始播放该歌曲，需要修改多个数据：setPlaying，setPlayList，setCurrentIndex，setOrderList
+
+  play.vue组件
+    如果没有播放，播放组件不显示，播放列表为空，getPlayList.length>0
+    全屏和小屏的切换：
+      通过点击实现切换 toggle事件
+      getFullScreen为true则全屏，false则小屏
+    小屏部分：
+      显示图片，歌曲名，歌手名以及3个图标(播放，暂停，列表)
+      其中图标歌曲名歌手名直接从currentSong当中获取
+    全屏部分：
+      返回按钮，标题内容
+      class="middle"中分为两部分middle-l,middle-r
+      分别表示CD页面和歌词页面
+      CD部分绑定下样式即可
+      歌词部分后面说
+    工具按钮事件的设置：
+      模式的切换：
+        顺序播放，循环播放，随机播放的模式切换
+        其中随机播放将播放列表乱序，循环播放不做操作，播放结束后不去调用下一首，直接继续播放即可
+      上一首和下一首的设置：
+        上一首下一首的切换，通过当前播放下标的自减自增实现，需要注意的是如果是第一首或者是最后一首的情况，以及获取歌曲资源失败的情况
+      播放暂停的设置：
+        点击播放或暂停，修改palying状态的值setPlaying，同时根据getPlaying的值修改icon
+    歌曲的播放：
+      获取歌曲资源
+        找请求地址和参数，最终取到purl数据作为播放源(拼接完整地址)
+      将播放源放入audio标签中
+      获取歌曲的总时间，当前播放的时间
+      给audio添加事件：播放时间更新事件，播放结束事件
+    进度条：
+      progress-bar组件
+      传入播放百分比给该组件，进度条组件接收百分比，修改进度条长度
+      监听百分比值，实时修改进度条长度
+      给进度条添加触摸事件
+        touchstart
+        touchmove
+        touchend
+      分别处理对应的事件
+      添加单击事件，选择播放的进度
+        根据长度计算得出点击位置所在百分比，然后将百分比传递给player组件
+    player接收百分比，修改歌曲播放进度
+    
+    歌词部分：
+      获取歌词，编码后的歌词使用js-base64模块进行转码，再使用lyric-parser模块将其转换成歌词对象，可以调用其中的play方法等
+      歌词的显示
+      cd和歌词的切换(滑动的距离决定)
+      在监听getPlaying的地方添加歌词的播放与暂停(togglePlay方法)
+      歌曲结束后歌词的切换，数据的重置
+      修改播放进度时，同时修改歌词的进度

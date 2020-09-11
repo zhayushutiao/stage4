@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>vue的使用</h1>
+    <div id="app">
+        <h3>data中声明的属性msg: {{ msg }}</h3>
+    </div>
+    <!-- 引入Vue -->
+    <script src="../vue.js"></script>
+    <script>
+        /* 
+        vue允许我们使用声明的方式将数据渲染到DOM，以{{变量名}}方式将数据直接插入到页面中，实现数据的响应式
+         */
+        // 创建Vue的实例对象
+        let vm = new Vue({
+            // el表示Vue实例需要挂载的DOM节点
+            el:"#app",
+            // data表示Vue实例中的数据,声明的数据，对象形式
+            data:{
+                msg:'Hello Vue!'
+            },
+            // 声明的方法,对象形式
+            methods:{
+                show1:function(){
+                    console.log(this);
+                    console.log(1);
+                },
+                show2:()=>{
+                    console.log(this);
+                    console.log(2);
+                },
+                show3(){
+                    console.log(this);
+                    console.log(3);
+                }
+            }
+        })
+    </script>
+</body>
+</html>
